@@ -12,21 +12,21 @@ router.get('/favicon', async (req, res) => {
     const siteUrl = req.query.url;
     
     if (!siteUrl) {
-      return res.status(400).json({ error: 'Missing url parameter' });
+      return res.status(200).json({ error: 'Missing url parameter' });
     }
 
     // 验证URL格式
     try {
       new URL(siteUrl);
     } catch (e) {
-      return res.status(400).json({ error: 'Invalid URL format' });
+      return res.status(200).json({ error: 'Invalid URL format' });
     }
 
     const faviconUrl = await getFavicon(siteUrl);
     res.json(faviconUrl);
   } catch (error) {
     console.error('Error in favicon route:', error);
-    res.status(500).json({ error: error.message });
+    res.status(200).send(null);
   }
 });
 
@@ -52,7 +52,7 @@ router.get('/favicon/:domain.png', async (req, res) => {
     stream.pipe(res);
   } catch (error) {
     console.error(`[Favicon] Error for ${req.params.domain}:`, error);
-    res.status(404).send();
+    res.status(200).send(null);
   }
 });
 

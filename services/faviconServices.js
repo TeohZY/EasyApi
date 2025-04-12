@@ -63,20 +63,6 @@ export async function getFavicon(siteUrl) {
 
 export async function getFaviconStream(siteUrl) {
   try {
-    // 1. Check cache (now caching URL and metadata only, not the stream)
-    const cached = cache.get(siteUrl);
-    if (cached) {
-      // Always fetch fresh stream even if URL is cached
-      const freshResponse = await axios.get(cached.url, {
-        responseType: 'stream',
-        timeout: 3000
-      });
-      return {
-        stream: freshResponse.data,
-        contentType: cached.contentType
-      };
-    }
-
     // 2. Get favicon URL (original logic)
     const baseUrl = new URL(siteUrl).origin;
     let faviconUrl = `${baseUrl}/favicon.ico`;
@@ -94,17 +80,10 @@ export async function getFaviconStream(siteUrl) {
         faviconUrl = new URL(iconEl.attr('href'), baseUrl).href;
       }
     }
-
     // 4. Get fresh image stream
     const response = await axios.get(faviconUrl, {
       responseType: 'stream',
       timeout: 3000
-    });
-
-    // Cache only the URL and metadata, not the stream
-    cache.set(siteUrl, {
-      url: faviconUrl,
-      contentType: response.headers['content-type'] || 'image/x-icon'
     });
 
     return {
