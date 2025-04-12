@@ -2,6 +2,7 @@ import axios from 'axios';
 import { load } from 'cheerio';
 import { URL } from 'url';
 import {cache} from '../config/cache.js';
+import { log } from 'console';
 
 /**
  * 获取网站的 favicon 图标链接
@@ -62,21 +63,29 @@ export async function getFavicon(siteUrl) {
 
 export async function getFaviconStream(siteUrl) {
   try {
-    // 1. 检查缓存（缓存图片Buffer或Stream）
+    // 1. Check cache (now caching URL and metadata only, not the stream)
     const cached = cache.get(siteUrl);
     if (cached) {
-      return { stream: cached.stream, contentType: cached.contentType };
+      // Always fetch fresh stream even if URL is cached
+      const freshResponse = await axios.get(cached.url, {
+        responseType: 'stream',
+        timeout: 3000
+      });
+      return {
+        stream: freshResponse.data,
+        contentType: cached.contentType
+      };
     }
 
-    // 2. 获取favicon实际URL（原逻辑）
+    // 2. Get favicon URL (original logic)
     const baseUrl = new URL(siteUrl).origin;
     let faviconUrl = `${baseUrl}/favicon.ico`;
     
-    // 3. 验证/favicon.ico是否存在
+    // 3. Verify /favicon.ico exists
     try {
       await axios.head(faviconUrl, { timeout: 3000 });
     } catch {
-      // 如果不存在，解析HTML查找其他favicon
+      // If not found, parse HTML for alternative favicon
       const htmlResponse = await axios.get(siteUrl, { timeout: 5000 });
       const $ = load(htmlResponse.data);
       
@@ -86,16 +95,16 @@ export async function getFaviconStream(siteUrl) {
       }
     }
 
-    // 4. 获取图片流
+    // 4. Get fresh image stream
     const response = await axios.get(faviconUrl, {
-      responseType: 'stream', // 关键点
+      responseType: 'stream',
       timeout: 3000
     });
 
-    // 5. 缓存可复用的数据（非流）
+    // Cache only the URL and metadata, not the stream
     cache.set(siteUrl, {
       url: faviconUrl,
-      contentType: response.headers['content-type']
+      contentType: response.headers['content-type'] || 'image/x-icon'
     });
 
     return {
