@@ -52,7 +52,7 @@ router.get('/favicon/:domain.png', async (req, res) => {
     stream.pipe(res);
   } catch (error) {
     console.error(`[Favicon] Error for ${req.params.domain}:`, error);
-    res.status(500).send(error.message);
+    res.status(404).send();
   }
 });
 
