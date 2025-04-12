@@ -1,0 +1,28 @@
+{
+  "name": "easyapi",
+  "version": "1.0.0",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TeohZY/EasyApi.git"
+  },
+  "author": "Mango",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TeohZY/EasyApi/issues"
+  },
+  "homepage": "https://github.com/TeohZY/EasyApi#readme",
+  "description": "",
+  "dependencies": {
+    "axios": "^1.8.4",
+    "cheerio": "^1.0.0",
+    "express": "^5.1.0",
+    "favicons": "^7.2.0",
+    "node-cache": "^5.1.2"
+  }
+}
